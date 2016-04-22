@@ -8,5 +8,9 @@ defmodule Stacker.Server do
   def handle_call(:pop, _from, []) do
     { :reply, nil, [] }
   end
+  
+  def handle_cast({:push, new_number}, [head | tail]) do
+    { :noreply, [new_number] ++ [head | tail] }
+  end
     
 end

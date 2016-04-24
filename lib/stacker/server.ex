@@ -4,8 +4,8 @@ defmodule Stacker.Server do
   ####
   # External API
   
-  def start_link( [head | tail] ) do
-    GenServer.start_link(__MODULE__, [head | tail], name: __MODULE__)
+  def start_link(stash_pid) do
+    GenServer.start_link(__MODULE__, stash_pid, name: __MODULE__)
   end
   
   def pop do
@@ -18,29 +18,28 @@ defmodule Stacker.Server do
   
   ####
   # GenServer implementation  
+  
+  def init(stash_pid) do
+    [ head | tail ] = Stacker.Stash.get_value stash_pid
+    { :ok, {[head|tail], stash_pid} }
+  end
     
-  def handle_call(:pop, _from, [head | tail]) do
-    { :reply, head, tail }
+  def handle_call(:pop, _from, {[head | tail], stash_pid} ) do
+    { :reply, head, {tail, stash_pid} }
   end
   
-  def handle_call(:pop, _from, []) do
-    {:stop, "bad weather", :reply, 0}
+  def handle_call(:pop, _from, {[], stash_pid} ) do
+    {:stop, "bad weather", :reply,  {[], stash_pid}}
     #{ :reply, nil, [] }
   end
   
-  def handle_cast({:push, new_item}, [head | tail]) do
-    { :noreply, [new_item] ++ [head | tail] }
+  def handle_cast({:push, new_item}, {[head | tail], stash_pid} ) do
+    { :noreply, {[new_item] ++ [head | tail], stash_pid} }
   end
   
-  def terminate(reason, :reply, state) do
-    IO.puts "The reason was #{reason} "
-    IO.puts "and the state of the nation is #{state}"
-    IO.puts "there could be a reply: #{:reply}"
-  end
-  
-  def terminate(reason, state) do
-    IO.puts "The reason was #{reason} "
-    IO.puts "and the state of the nation is #{state}"
+  def terminate(_reason, {value, stash_pid} ) do
+    Stacker.Stash.save_value stash_pid, value
+    #IO.puts "The reason was #{reason} "    
   end  
     
 end

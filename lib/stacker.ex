@@ -7,7 +7,7 @@ defmodule Stacker do
     import Supervisor.Spec, warn: false
 
     children = [
-      worker(Stacker.Server, ["little", "stuart", 90])      
+      worker(Stacker.Server, [["little", "stuart", 90]])      
     ]
 
     opts = [strategy: :one_for_one, name: Stacker.Supervisor]

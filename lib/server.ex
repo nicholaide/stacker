@@ -24,11 +24,23 @@ defmodule Stacker.Server do
   end
   
   def handle_call(:pop, _from, []) do
-    { :reply, nil, [] }
+    {:stop, "bad weather", :reply, 0}
+    #{ :reply, nil, [] }
   end
   
   def handle_cast({:push, new_item}, [head | tail]) do
     { :noreply, [new_item] ++ [head | tail] }
   end
+  
+  def terminate(reason, :reply, state) do
+    IO.puts "The reason was #{reason} "
+    IO.puts "and the state of the nation is #{state}"
+    IO.puts "there could be a reply: #{:reply}"
+  end
+  
+  def terminate(reason, state) do
+    IO.puts "The reason was #{reason} "
+    IO.puts "and the state of the nation is #{state}"
+  end  
     
 end

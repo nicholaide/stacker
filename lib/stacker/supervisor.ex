@@ -1,7 +1,7 @@
 defmodule Stacker.Supervisor do
   use Supervisor
   def start_link([ head | tail] ) do
-    result = {:ok, sup } = Supervisor.start_link(__MODULE__, [head | tail] ) # this calls the init callback
+    result = {:ok, sup } = Supervisor.start_link(__MODULE__, [[head | tail] ]) # this calls the init callback
     start_workers(sup, [head | tail])
     result
   end

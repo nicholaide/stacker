@@ -29,17 +29,18 @@ defmodule Stacker.Server do
   end
   
   def handle_call(:pop, _from, {[], stash_pid} ) do
-    {:stop, "bad weather", :reply,  {[], stash_pid}}
-    #{ :reply, nil, [] }
+    #{:stop, "bad weather", :reply,  {[], stash_pid}}
+    raise "Empty stack to pop"    
   end
   
-  def handle_cast({:push, new_item}, {[head | tail], stash_pid} ) do
-    { :noreply, {[new_item] ++ [head | tail], stash_pid} }
+  def handle_cast({:push, new_item}, {list, stash_pid} ) do
+    { :noreply, {[new_item | list], stash_pid} }
   end
   
   def terminate(_reason, {value, stash_pid} ) do
+    IO.puts "The reason was not using {:stop}"  
     Stacker.Stash.save_value stash_pid, value
-    #IO.puts "The reason was #{reason} "    
+      
   end  
     
 end
